@@ -1,5 +1,8 @@
 package entity;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 
@@ -56,12 +59,14 @@ public class User {
 	
 	//Constructors
 	
-	public User(Integer userId, String name, String email, String password, List<Article> articles) {
+	public User(Integer userId, String name, String email, String password, List<Article> articles) throws NoSuchAlgorithmException {
 		super();
 		this.userId = userId;
 		this.name = name;
 		this.email = email;
-		this.password = password;	}
+		this.password = password;	
+		
+	}
 
 	
 

@@ -1,5 +1,8 @@
 package resources;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -15,12 +18,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.common.hash.Hashing;
+
 import dao.UserDao;
 import entity.User;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
@@ -62,13 +68,52 @@ public class UserResource {
         return user.toJson();
     }
     
+    //TESTED - WORKING
+    @POST
+    @Path("authentication")
+    public Response authenticate(@Valid User user) {
+    	
+    	//Hashing pasword
+    	final String hashed = Hashing.sha256()
+		        .hashString(user.getPassword(), StandardCharsets.UTF_8)
+		        .toString();
+    	
+    	//Getting users
+    	List<User> users = userDao.findAll();
+    	
+    	//Iterating through users
+    	for(User u : users) {
+    		/*System.out.println("hashed: " + hashed);
+    		System.out.println("u.getname " + u.getName());
+    		System.out.println("user.getname " + user.getName());
+    		System.out.println("u.getPassword " + u.getPassword());
+    		System.out.println("user.getPassword " + user.getPassword());
+    		System.out.println(u.getName().equals(user.getName()) && u.getPassword().equals(hashed));*/
+    		if(u.getName().equals(user.getName()) && u.getPassword().equals(hashed)) {
+    			
+    			return Response.ok().build();
+    		}
+    	}
+    	
+    	return Response.status(401)
+    				   .build();
+    	
+    }
+    
     
     //TESTED - WORKING
     @POST
-    public Response create(@Valid User user) {
+    public Response create(@Valid User user) throws NoSuchAlgorithmException {
     	
     	if(user !=null) {
     		System.out.println("userDao called from POST");
+    		
+    		//SHA-256 to hash password before storing in database
+    		final String hashed = Hashing.sha256()
+    		        .hashString(user.getPassword(), StandardCharsets.UTF_8)
+    		        .toString();
+    		user.setPassword(hashed);
+    		
     		this.userDao.create(user);
     	}
         
