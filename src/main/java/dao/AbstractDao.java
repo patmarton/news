@@ -2,6 +2,8 @@ package dao;
 
 import java.util.List;
 
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,30 +20,36 @@ public abstract class AbstractDao<T, I> {
 
 	public abstract EntityManager em();
 	
+	@Lock(LockType.WRITE)
 	public void create(T entity){
 		System.out.println("create being called from abstract dao...");
 		System.out.println(entity.toString());
 		em().persist(entity);
 	}
 	
+	@Lock(LockType.WRITE)
 	public T update(T entity){
 		return em().merge(entity);
 	}
 	
+	@Lock(LockType.READ)
 	public T findById(I id){
 		return em().find(entityClass, id);
 	}
 	
+	@Lock(LockType.WRITE)
 	public void delete(T entity){
 		em().remove(em().merge(entity));
 	}
 	
+	@Lock(LockType.WRITE)
 	public void deleteById(I id){
 		T entity = findById(id);
 		if(entity != null)
 			em().remove(entity);
 	}
 	
+	@Lock(LockType.READ)
 	public List<T> findAll(){
 		CriteriaBuilder cb = em().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(entityClass);

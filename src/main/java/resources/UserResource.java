@@ -22,6 +22,7 @@ import com.google.common.hash.Hashing;
 
 import dao.UserDao;
 import entity.User;
+import security.SecuritySHA256;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
@@ -83,14 +84,7 @@ public class UserResource {
     	
     	//Iterating through users
     	for(User u : users) {
-    		/*System.out.println("hashed: " + hashed);
-    		System.out.println("u.getname " + u.getName());
-    		System.out.println("user.getname " + user.getName());
-    		System.out.println("u.getPassword " + u.getPassword());
-    		System.out.println("user.getPassword " + user.getPassword());
-    		System.out.println(u.getName().equals(user.getName()) && u.getPassword().equals(hashed));*/
     		if(u.getName().equals(user.getName()) && u.getPassword().equals(hashed)) {
-    			
     			return Response.ok().build();
     		}
     	}
@@ -108,11 +102,8 @@ public class UserResource {
     	if(user !=null) {
     		System.out.println("userDao called from POST");
     		
-    		//SHA-256 to hash password before storing in database
-    		final String hashed = Hashing.sha256()
-    		        .hashString(user.getPassword(), StandardCharsets.UTF_8)
-    		        .toString();
-    		user.setPassword(hashed);
+    		final SecuritySHA256 hasher = new SecuritySHA256();
+    		user.setPassword(hasher.hashPassword(user.getPassword()));
     		
     		this.userDao.create(user);
     	}

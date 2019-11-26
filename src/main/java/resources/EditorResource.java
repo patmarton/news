@@ -1,5 +1,6 @@
 package resources;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -15,8 +16,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.common.hash.Hashing;
+
 import dao.EditorDao;
 import entity.Editor;
+import entity.User;
+import security.SecuritySHA256;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
@@ -69,6 +74,10 @@ public class EditorResource {
     	
     	if(editor !=null) {
     		System.out.println("editorDao called from POST");
+    		
+    		final SecuritySHA256 hasher = new SecuritySHA256();
+    		editor.setPassword(hasher.hashPassword(editor.getPassword()));
+    		
     		this.editorDao.create(editor);
     	}
         
@@ -94,16 +103,34 @@ public class EditorResource {
         this.editorDao.delete(editor);
 
         return Response.ok().build();
+        
+        
     }
     
     
-    /*@OPTIONS
-    public Response getOptions() {
-      return Response.ok()
-        .header("Access-Control-Allow-Origin", "*")
-        .header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, OPTIONS")
-        .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
-    }*/
+    @POST
+    @Path("authentication")
+    public Response authenticate(@Valid Editor editor) {
+    	
+    	//Hashing pasword
+    	final String hashed = Hashing.sha256()
+		        .hashString(editor.getPassword(), StandardCharsets.UTF_8)
+		        .toString();
+    	
+    	//Getting users
+    	List<Editor> editors = editorDao.findAll();
+    	
+    	//Iterating through users
+    	for(Editor u : editors) {
+    		if(u.getName().equals(editor.getName()) && u.getPassword().equals(hashed)) {
+    			return Response.ok().build();
+    		}
+    	}
+    	
+    	return Response.status(401)
+    				   .build();
+    	
+    }
 
 
 	

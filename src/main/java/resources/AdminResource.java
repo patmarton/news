@@ -1,5 +1,6 @@
 package resources;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -15,8 +16,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.common.hash.Hashing;
+
 import dao.AdminDao;
 import entity.Admin;
+import entity.Editor;
+import security.SecuritySHA256;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
@@ -69,6 +74,8 @@ public class AdminResource {
     	
     	if(admin !=null) {
     		System.out.println("adminDao called from POST");
+    		final SecuritySHA256 hasher = new SecuritySHA256();
+    		admin.setPassword(hasher.hashPassword(admin.getPassword()));
     		this.adminDao.create(admin);
     	}
         
@@ -94,6 +101,31 @@ public class AdminResource {
         this.adminDao.delete(admin);
 
         return Response.ok().build();
+    }
+    
+    
+    @POST
+    @Path("authentication")
+    public Response authenticate(@Valid Admin admin) {
+    	
+    	//Hashing pasword
+    	final String hashed = Hashing.sha256()
+		        .hashString(admin.getPassword(), StandardCharsets.UTF_8)
+		        .toString();
+    	
+    	//Getting users
+    	List<Admin> admins = adminDao.findAll();
+    	
+    	//Iterating through users
+    	for(Admin u : admins) {
+    		if(u.getName().equals(admin.getName()) && u.getPassword().equals(hashed)) {
+    			return Response.ok().build();
+    		}
+    	}
+    	
+    	return Response.status(401)
+    				   .build();
+    	
     }
     
     
