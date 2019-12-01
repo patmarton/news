@@ -1,5 +1,6 @@
 package resources;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -46,8 +47,9 @@ public class ArticleResource {
     public JsonArray findall() {		
 		JsonArrayBuilder jsonList = Json.createArrayBuilder();
 		List<Article> list = articleDao.findAll();
-		
+		Date curDate = new Date();
 		for(Article article : list) {
+			if((article.getDate().getTime()-curDate.getTime())>0)
 			jsonList.add(article.toJson());
 		}	
 		return jsonList.build();	

@@ -9,8 +9,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 
-import dao.UserDao;
-import entity.User;
+import dao.AdminDao;
+import entity.Admin;
 //import org.glassfish.jersey.internal.util.Base64;
 
 public class SecurityFilter implements ContainerRequestFilter{
@@ -19,7 +19,7 @@ public class SecurityFilter implements ContainerRequestFilter{
 	private static final String AUTHORIZATION_HEADER_PREFIX = "Basic";
 	
 	@EJB
-	UserDao userDao;
+	AdminDao adminDao;
 	
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -36,8 +36,8 @@ public class SecurityFilter implements ContainerRequestFilter{
 			String username = tokenizer.nextToken();
 			String password = tokenizer.nextToken();
 			
-			List<User> users = userDao.findAll();
-			for(User u : users) {
+			List<Admin> users = adminDao.findAll();
+			for(Admin u : users) {
 				if(u.getName().equals(username) && u.getPassword().equals(password))
 					return;
 			}

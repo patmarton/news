@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import com.google.common.hash.Hashing;
 
 import dao.EditorDao;
+import dao.UserDao;
 import entity.Editor;
 import entity.User;
 import security.SecuritySHA256;
@@ -47,6 +48,9 @@ public class EditorResource {
 	@EJB
 	EditorDao editorDao;
 	
+	@EJB
+	UserDao userDao;
+	
 	@GET
     public JsonArray findall() {		
 		JsonArrayBuilder jsonList = Json.createArrayBuilder();
@@ -74,9 +78,15 @@ public class EditorResource {
     	
     	if(editor !=null) {
     		System.out.println("editorDao called from POST");
+    	
+    		List<User> users = userDao.findAll();
+    		for(User u:users) {
+    			if(u.getEmail().equals(editor.getEmail()))
+    				editor.setPassword(u.getPassword());
+    		}
     		
-    		final SecuritySHA256 hasher = new SecuritySHA256();
-    		editor.setPassword(hasher.hashPassword(editor.getPassword()));
+    		//final SecuritySHA256 hasher = new SecuritySHA256();
+    		//editor.setPassword(hasher.hashPassword(editor.getPassword()));
     		
     		this.editorDao.create(editor);
     	}

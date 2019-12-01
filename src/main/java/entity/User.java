@@ -52,7 +52,7 @@ public class User {
 	    		.add("id", this.userId)
 	            .add("name", this.name)
 	            .add("email", this.email)
-	            .add("password", this.password)
+	            //.add("password", this.password)
 	            .build();
 	}
 	

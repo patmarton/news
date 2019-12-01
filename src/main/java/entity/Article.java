@@ -1,5 +1,6 @@
 package entity;
 
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -61,12 +62,15 @@ public class Article {
 	//Json Convereter
 	
 	public JsonObject toJson() {
+		//System.out.println("picture in toJson(): " + picture);
+		//System.out.println("picture.toString() in toJson(): " + picture.toString());
+		//System.out.println("picture base64 : " + Base64.getEncoder().encodeToString(picture));
 	    return Json.createObjectBuilder()
 	    		.add("id", this.articleId)
 	            .add("title", this.title)
 	            .add("content", this.content)
 	            .add("category", this.category)
-	            .add("picture", this.picture.toString())
+	            .add("picture", Base64.getEncoder().encodeToString(this.picture))
 	            .add("date", this.date.toString())
 	            .add("main_article", this.main_article)
 	            .build();

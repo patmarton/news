@@ -2,13 +2,14 @@ package dao;
 
 import java.util.List;
 
+import javax.ejb.Singleton;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import entity.User;
 
-@Stateless
+@Singleton
 public class UserDao extends AbstractDao<User, Integer>{
 
 	@PersistenceContext

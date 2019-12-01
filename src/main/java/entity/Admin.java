@@ -48,7 +48,7 @@ public class Admin extends Editor{
 	    		.add("id", this.editorId)
 	            .add("name", this.name)
 	            .add("email", this.email)
-	            .add("password", this.password)
+	            //.add("password", this.password)
 	            .build();
 	}
 	
